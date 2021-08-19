@@ -1,5 +1,5 @@
 from aiohttp import web
-from application.routes import setup_routes,  setup_template_routes,setup_static_routes
+from application.routes import setup_routes,  setup_template_routes,setup_static_routes,setup_api_routes
 
 
 def init():
@@ -7,6 +7,7 @@ def init():
     setup_routes(app)
     setup_template_routes(app)
     setup_static_routes(app)
+    setup_api_routes(app)
     return app
 
 app=init()
