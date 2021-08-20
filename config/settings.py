@@ -3,7 +3,7 @@ DATABASES = {
   "host":"localhost",
   "user":"root",
   "password":"password",
-  "port":3308,
+  "port":3306,
   "database":"test"
 }
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))      # 项目路径

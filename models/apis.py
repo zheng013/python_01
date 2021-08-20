@@ -15,6 +15,19 @@ async def api_users(request):
     data={'users':json.loads((json.dumps(users, cls=JSONEncoder)))}
     return web.json_response(data)
 
+    
+async def api_register(request):
+    # pass
+    data1 = await request.post()
+    conn=pymysql.connect(**DATABASES)
+    cursor=conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute('select * from users')
+    users=cursor.fetchall()
+    cursor.close()
+    conn.close()
+    data={'users':json.loads((json.dumps(users, cls=JSONEncoder)))}
+    return web.json_response(data)
+
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -27,6 +40,4 @@ class JSONEncoder(json.JSONEncoder):
             return obj.strftime("%Y-%m-%d")
         return json.JSONEncoder.default(self, obj)
 
-class JSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        return super().default(o) #初始化父类的实例调用上面相关的属性和方法。    
+ 

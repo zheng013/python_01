@@ -27,3 +27,7 @@ async def blogs(request):
 
 async def hello(request):
     return web.Response(text='Hello,World!')
+
+@aiohttp_jinja2.template('register.html')
+async def register(request):
+    pass

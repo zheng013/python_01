@@ -1,5 +1,5 @@
-from .views import hello,users,blogs
-from models.apis import api_users
+from .views import hello,users,blogs,register
+from models.apis import api_users,api_register
 import aiohttp_jinja2,jinja2
 from config.settings import STATIC_DIR, TEMPLATE_DIR
 
@@ -13,7 +13,9 @@ def  setup_routes(app):
     app.router.add_get('/hello',hello)
     app.router.add_get('/users',users) 
     app.router.add_get('/blogs',blogs) 
+    app.router.add_get('/register',register) 
 
 
 def  setup_api_routes(app):
     app.router.add_get('/api/users',api_users) 
+    app.router.add_post('/api/register',api_register) 
