@@ -80,7 +80,7 @@ function validateEmail(email) {
                 $form.postJSON('/api/register', {
                     name: this.name.trim(),
                     email: email,
-                    passwd: this.password
+                    passwd: this.password1
                 }, function (err, r) {
                     if (err) {
                         return $form.showFormError(err);

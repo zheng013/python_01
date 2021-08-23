@@ -1,7 +1,11 @@
-import pymysql
+import pymysql,base64,aiohttp_session,time
 from config.settings import DATABASES
 from aiohttp import web
 import decimal,json,datetime
+from cryptography import fernet
+from aiohttp_session import setup, get_session, session_middleware
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
+
 
 async def api_users(request):
     # pass
@@ -18,18 +22,55 @@ async def api_users(request):
     
 async def api_register(request):
     # pass
-    data1 = await request.post()
+    post_data=await request.content.read()
+    user_info=json.loads(post_data)
     conn=pymysql.connect(**DATABASES)
+    name=user_info.get("name")
+    passwd=user_info.get("passwd")
+    email=user_info.get("email")
     cursor=conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute('select * from users')
-    users=cursor.fetchall()
-    cursor.close()
-    conn.close()
-    data={'users':json.loads((json.dumps(users, cls=JSONEncoder)))}
-    return web.json_response(data)
+    cursor.execute('select * from users where name=%s',(name))
+    user=cursor.fetchall()
+    if user:
+        cursor.close()
+        conn.close()
+        return web.Response(text='当前用户已存在')
+    else:
+        cursor.execute('INSERT INTO users(name,email,password,image) VALUES(%s,%s,%s,%s)',(name,email,passwd,'sdsd'))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        data={'users':json.loads((json.dumps(user, cls=JSONEncoder)))}
+        res = web.Response()
+        res.content_type='application/json'
+        res.set_cookie('COOKIE_NAME_USERID', str.encode(passwd), max_age=86400, httponly=True)
+        res.body=json.dumps(user_info)
+        return res
 
-
-
+async def  sign_in(request):
+    session = await get_session(request)
+    cookieid=request.cookies.get('AIOHTTP_SESSION')
+    last_visit = session[cookieid] if 'last_visit' in session else None
+    session[cookieid] = '大王'  # 将用户信息保存在session中，等再次登录后进行匹配获取正确的用户登录
+    text = 'Last visited: {}'.format(last_visit)
+    response=web.Response()
+    aiohttp_session.save_session(request,response,session)
+    # sessid= request.cookies.get('AIOHTTP_SESSION')
+    # sessionStoragess=aiohttp_session.AbstractStorage(sessid)
+    # print(sessionStoragess.load_cookie(request))
+     # 将用户信息保存在session中，等再次登录后进行匹配获取正确的用户登录
+    return web.json_response('ok')
+async def  sign_in2(request):
+    session = await get_session(request)
+    cookieid=request.cookies.get('AIOHTTP_SESSION')
+    last_visit = session[cookieid]
+    session['last_visit'] = 2   # 将用户信息保存在session中，等再次登录后进行匹配获取正确的用户登录
+    text = 'Last visited: {}'.format(session['last_visit'])
+    # sessid= request.cookies.get('AIOHTTP_SESSION')
+    # sessionStoragess=aiohttp_session.AbstractStorage(sessid)
+    # print(sessionStoragess.load_cookie(request))
+     # 将用户信息保存在session中，等再次登录后进行匹配获取正确的用户登录
+    return web.json_response(text)
 class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, decimal.Decimal):
