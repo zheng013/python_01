@@ -46,7 +46,6 @@ async def api_register(request):
         res.set_cookie('COOKIE_NAME_USERID', str.encode(passwd), max_age=86400, httponly=True)
         res.body=json.dumps(user_info)
         return res
-
 async def  sign_in(request):
     session = await get_session(request)
     cookieid=request.cookies.get('AIOHTTP_SESSION')
@@ -71,6 +70,24 @@ async def  sign_in2(request):
     # print(sessionStoragess.load_cookie(request))
      # 将用户信息保存在session中，等再次登录后进行匹配获取正确的用户登录
     return web.json_response(text)
+
+async def create_blog(request):
+  post_data=await request.content.read()
+  blog_data=json.loads(post_data)
+  name=blog_data.get('name')
+  summary=blog_data.get('summary')
+  content=blog_data.get('content')
+  conn =pymysql.connect(**DATABASES)
+  cursor=conn.cursor(pymysql.cursors.DictCursor)
+  cursor.execute('insert into blogs(user_id,user_name,user_image,name,summary,content,created_at) values(%s,%s,%s,%s,%s,%s,%s)',('test31','pable31','blank:about',name,summary,content,time.time()))
+  conn.commit()
+  cursor.execute('select *from blogs where name=%s',name)
+  blog=cursor.fetchone()
+  cursor.close()  #利用with进行替代 自动close
+  conn.close()
+  blog=json.loads((json.dumps(blog, cls=JSONEncoder)))
+  return web.json_response(blog)
+
 class JSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, decimal.Decimal):

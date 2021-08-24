@@ -24,6 +24,13 @@ async def blogs(request):
         {'id':'3', 'name':'Learn Swift', 'summary':summary, 'created_at':time.time()-720}
     ]
     return{'blogs':blogs}
+@aiohttp_jinja2.template('blog_edit.html')
+async def blog_edit(request):
+    id=request.match_info['id']
+    print(id)
+    return {"action":"create/blog"}
+
+    
 
 async def hello(request):
     return web.Response(text='Hello,World!')
