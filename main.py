@@ -5,7 +5,6 @@ from cryptography import fernet
 from aiohttp_session import setup, get_session, session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 
-
 def init():
     app = web.Application()
     setup_routes(app)
@@ -13,10 +12,6 @@ def init():
     setup_static_routes(app)
     setup_api_routes(app)
     return app
-
-
-
-
 
 async def handler(request):
     session = await get_session(request)
